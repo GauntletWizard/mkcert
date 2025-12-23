@@ -324,6 +324,9 @@ func (m *mkcert) newCA() {
 
 	skid := sha1.Sum(spki.SubjectPublicKey.Bytes)
 
+	_, LocalNet, err := net.ParseCIDR("127.0.0.1/8")
+	fatalIfErr(err, "failed to parse IP Addresss")
+
 	tpl := &x509.Certificate{
 		SerialNumber: randomSerialNumber(),
 		Subject: pkix.Name{
@@ -341,6 +344,11 @@ func (m *mkcert) newCA() {
 		NotBefore: time.Now(),
 
 		KeyUsage: x509.KeyUsageCertSign,
+
+		PermittedDNSDomains: []string{"localhost", ".localhost"},
+		PermittedIPRanges:   []*net.IPNet{LocalNet},
+		PermittedURIDomains: []string{"localhost", ".localhost"},
+		//		ExcludedEmailAddresses: []string{"@"},
 
 		BasicConstraintsValid: true,
 		IsCA:                  true,
